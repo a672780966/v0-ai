@@ -70,16 +70,18 @@ const initialNodes: Node[] = [
 ]
 
 const initialEdges: Edge[] = [
-  { id: 'e1', source: 'input', target: 'intent', animated: true, style: { stroke: '#3B82F6', strokeWidth: 2 } },
-  { id: 'e2', source: 'intent', target: 'governance', animated: true, style: { stroke: '#06B6D4', strokeWidth: 2 } },
-  { id: 'e3', source: 'governance', target: 'rag', animated: true, style: { stroke: '#8B5CF6', strokeWidth: 2 } },
-  { id: 'e4', source: 'rag', target: 'agent', animated: true, style: { stroke: '#10B981', strokeWidth: 2 } },
-  { id: 'e5', source: 'agent', target: 'human', animated: true, style: { stroke: '#7C3AED', strokeWidth: 2 } },
-  { id: 'e6', source: 'human', target: 'feedback', animated: true, style: { stroke: '#F59E0B', strokeWidth: 2 } },
+  { id: 'e1', source: 'input', target: 'intent', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#3B82F6', strokeWidth: 2 } },
+  { id: 'e2', source: 'intent', target: 'governance', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#06B6D4', strokeWidth: 2 } },
+  { id: 'e3', source: 'governance', target: 'rag', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#8B5CF6', strokeWidth: 2 } },
+  { id: 'e4', source: 'rag', target: 'agent', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#10B981', strokeWidth: 2 } },
+  { id: 'e5', source: 'agent', target: 'human', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#7C3AED', strokeWidth: 2 } },
+  { id: 'e6', source: 'human', target: 'feedback', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#F59E0B', strokeWidth: 2 } },
   { 
     id: 'e7', 
     source: 'feedback', 
     target: 'rag', 
+    sourceHandle: 'source',
+    targetHandle: 'target',
     animated: true, 
     style: { stroke: '#14B8A6', strokeDasharray: '5 5', strokeWidth: 2 },
     type: 'smoothstep',
@@ -101,14 +103,14 @@ function CustomNode({ data }: { data: { label: string; color: string; large?: bo
         boxShadow: `0 0 25px ${colors.glow}`,
       }}
     >
-      <Handle type="target" position={Position.Left} style={{ background: colors.border, border: 'none', width: 8, height: 8 }} />
+      <Handle type="target" position={Position.Left} id="target" style={{ background: colors.border, border: 'none', width: 8, height: 8 }} />
       <div className="flex flex-col items-center gap-1">
         <span>{data.label}</span>
         {data.category && (
           <span className="text-xs opacity-70 capitalize">{data.category}</span>
         )}
       </div>
-      <Handle type="source" position={Position.Right} style={{ background: colors.border, border: 'none', width: 8, height: 8 }} />
+      <Handle type="source" position={Position.Right} id="source" style={{ background: colors.border, border: 'none', width: 8, height: 8 }} />
     </div>
   )
 }
