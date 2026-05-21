@@ -1,11 +1,13 @@
 "use client"
 
-import { Search, Bell, User, Sparkles, ChevronDown, Menu, Activity, Cpu, Zap } from 'lucide-react'
+import { Search, Bell, User, Sparkles, ChevronDown, Menu, Clock, TrendingUp, Building2 } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
+const departments = ['全部', '客服部', '销售部', '运营部', 'HR', '技术部']
+
 export function Topbar() {
-  const { sidebarOpen, setSidebarOpen, notifications, aiStatus, activeNav } = useDashboardStore()
+  const { sidebarOpen, setSidebarOpen, notifications, aiStatus, activeNav, selectedDepartment, setSelectedDepartment } = useDashboardStore()
 
   return (
     <header 
@@ -45,17 +47,32 @@ export function Topbar() {
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
-          {/* Quick Stats */}
-          <div className="hidden lg:flex items-center gap-4 mr-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Cpu className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">GPU</span>
-              <span className="text-foreground font-medium">78%</span>
+          {/* Department Filter */}
+          <div className="hidden lg:flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <select 
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+              className="bg-muted/50 border border-border/50 rounded-lg px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary/50 cursor-pointer"
+            >
+              {departments.map(dept => (
+                <option key={dept} value={dept} className="bg-background">{dept}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Business Quick Stats */}
+          <div className="hidden xl:flex items-center gap-4 mx-4 px-4 py-1.5 rounded-xl bg-muted/30 border border-border/30">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground">今日节省</span>
+              <span className="text-sm font-semibold text-primary">142h</span>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Zap className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Token</span>
-              <span className="text-foreground font-medium">28K/s</span>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-secondary" />
+              <span className="text-xs text-muted-foreground">转化率</span>
+              <span className="text-sm font-semibold text-secondary">+18.2%</span>
             </div>
           </div>
 
@@ -91,8 +108,8 @@ export function Topbar() {
               <User className="h-4 w-4 text-white" />
             </div>
             <div className="hidden md:flex flex-col items-start">
-              <span className="text-sm font-medium text-foreground">管理员</span>
-              <span className="text-xs text-muted-foreground">企业版</span>
+              <span className="text-sm font-medium text-foreground">张经理</span>
+              <span className="text-xs text-muted-foreground">运营部</span>
             </div>
             <ChevronDown className="hidden md:block h-4 w-4 text-muted-foreground" />
           </button>

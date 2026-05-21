@@ -7,27 +7,53 @@ import {
   Bot, 
   Headphones, 
   Sparkles,
-  Cpu,
   ShieldCheck, 
   ScrollText, 
   Settings,
   ChevronLeft,
-  Zap
+  Zap,
+  Store,
+  Users,
+  GraduationCap,
+  Target
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useDashboardStore } from '@/lib/store'
 
-const navItems = [
-  { title: '经营总览', icon: BarChart3, route: 'executive' },
-  { title: 'AI工作流', icon: Workflow, route: 'workflow' },
-  { title: '知识中台', icon: Database, route: 'knowledge' },
-  { title: 'Agent协同', icon: Bot, route: 'agents' },
-  { title: 'AI客服', icon: Headphones, route: 'customer-service' },
-  { title: '员工Copilot', icon: Sparkles, route: 'copilot' },
-  { title: '模型调度', icon: Cpu, route: 'runtime' },
-  { title: '数据治理', icon: ShieldCheck, route: 'governance' },
-  { title: '日志监控', icon: ScrollText, route: 'logs' },
-  { title: '系统设置', icon: Settings, route: 'settings' },
+const navGroups = [
+  {
+    title: '经营中心',
+    items: [
+      { title: '经营总览', icon: BarChart3, route: 'executive' },
+      { title: 'AI工作流', icon: Workflow, route: 'workflow' },
+      { title: '模板市场', icon: Store, route: 'marketplace' },
+    ]
+  },
+  {
+    title: '业务场景',
+    items: [
+      { title: 'AI客服中心', icon: Headphones, route: 'customer-service' },
+      { title: '销售Copilot', icon: Target, route: 'sales' },
+      { title: '员工Copilot', icon: Sparkles, route: 'copilot' },
+      { title: '培训系统', icon: GraduationCap, route: 'training' },
+    ]
+  },
+  {
+    title: 'AI中台',
+    items: [
+      { title: '知识中台', icon: Database, route: 'knowledge' },
+      { title: 'Agent协同', icon: Bot, route: 'agents' },
+    ]
+  },
+  {
+    title: '系统管理',
+    items: [
+      { title: '组织架构', icon: Users, route: 'organization' },
+      { title: '数据治理', icon: ShieldCheck, route: 'governance' },
+      { title: '日志监控', icon: ScrollText, route: 'logs' },
+      { title: '系统设置', icon: Settings, route: 'settings' },
+    ]
+  }
 ]
 
 export function Sidebar() {
@@ -73,44 +99,60 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex flex-col gap-1 p-3 overflow-y-auto max-h-[calc(100vh-180px)]">
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = activeNav === item.title
-          return (
-            <button
-              key={item.title}
-              onClick={() => handleNavClick(item.title, item.route)}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200",
-                "hover:bg-sidebar-accent group relative",
-                isActive && "bg-primary/10 border border-primary/20 glow-blue"
-              )}
-            >
-              <Icon 
-                className={cn(
-                  "h-5 w-5 shrink-0 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                )} 
-              />
-              {sidebarOpen && (
-                <span 
-                  className={cn(
-                    "text-sm font-medium transition-colors",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                  )}
-                >
-                  {item.title}
+        {navGroups.map((group, groupIndex) => (
+          <div key={group.title} className={cn(groupIndex > 0 && "mt-4")}>
+            {sidebarOpen && (
+              <div className="px-3 mb-2">
+                <span className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">
+                  {group.title}
                 </span>
-              )}
-              {isActive && sidebarOpen && (
-                <div className="ml-auto h-2 w-2 rounded-full bg-primary pulse-glow" />
-              )}
-              {!sidebarOpen && isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-              )}
-            </button>
-          )
-        })}
+              </div>
+            )}
+            {!sidebarOpen && groupIndex > 0 && (
+              <div className="h-px bg-border/50 mx-3 my-2" />
+            )}
+            <div className="flex flex-col gap-1">
+              {group.items.map((item) => {
+                const Icon = item.icon
+                const isActive = activeNav === item.title
+                return (
+                  <button
+                    key={item.title}
+                    onClick={() => handleNavClick(item.title, item.route)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200",
+                      "hover:bg-sidebar-accent group relative",
+                      isActive && "bg-primary/10 border border-primary/20 glow-blue"
+                    )}
+                  >
+                    <Icon 
+                      className={cn(
+                        "h-5 w-5 shrink-0 transition-colors",
+                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                      )} 
+                    />
+                    {sidebarOpen && (
+                      <span 
+                        className={cn(
+                          "text-sm font-medium transition-colors",
+                          isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                        )}
+                      >
+                        {item.title}
+                      </span>
+                    )}
+                    {isActive && sidebarOpen && (
+                      <div className="ml-auto h-2 w-2 rounded-full bg-primary pulse-glow" />
+                    )}
+                    {!sidebarOpen && isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Bottom Section */}
@@ -122,12 +164,15 @@ export function Sidebar() {
               <span className="text-xs text-muted-foreground">系统状态</span>
             </div>
             <div className="text-sm font-medium text-foreground">所有AI服务正常运行</div>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-xs text-muted-foreground">GPU利用率</span>
-              <span className="text-xs font-medium text-secondary">78%</span>
-            </div>
-            <div className="w-full h-1.5 bg-muted/50 rounded-full mt-1 overflow-hidden">
-              <div className="h-full w-[78%] bg-gradient-to-r from-secondary to-primary rounded-full" />
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="text-center p-2 rounded-lg bg-background/50">
+                <div className="text-lg font-bold text-primary">128</div>
+                <div className="text-xs text-muted-foreground">Agent在线</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-background/50">
+                <div className="text-lg font-bold text-secondary">92.7%</div>
+                <div className="text-xs text-muted-foreground">知识命中</div>
+              </div>
             </div>
           </div>
         </div>

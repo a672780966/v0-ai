@@ -11,6 +11,8 @@ interface DashboardState {
   aiStatus: 'online' | 'processing' | 'offline'
   currentPage: string
   setCurrentPage: (page: string) => void
+  selectedDepartment: string
+  setSelectedDepartment: (dept: string) => void
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -22,4 +24,6 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   aiStatus: 'online',
   currentPage: 'executive',
   setCurrentPage: (page) => set({ currentPage: page }),
+  selectedDepartment: '全部',
+  setSelectedDepartment: (dept) => set({ selectedDepartment: dept }),
 }))
