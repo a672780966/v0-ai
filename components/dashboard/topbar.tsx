@@ -1,11 +1,11 @@
 "use client"
 
-import { Search, Bell, User, Sparkles, ChevronDown, Menu } from 'lucide-react'
+import { Search, Bell, User, Sparkles, ChevronDown, Menu, Activity, Cpu, Zap } from 'lucide-react'
 import { useDashboardStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 export function Topbar() {
-  const { sidebarOpen, setSidebarOpen, notifications, aiStatus } = useDashboardStore()
+  const { sidebarOpen, setSidebarOpen, notifications, aiStatus, activeNav } = useDashboardStore()
 
   return (
     <header 
@@ -23,25 +23,44 @@ export function Topbar() {
           >
             <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
+
+          {/* Current Page Title */}
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-lg font-semibold text-foreground">{activeNav}</span>
+          </div>
           
           {/* Global Search */}
-          <div className="hidden sm:flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2.5 min-w-[320px] border border-transparent hover:border-primary/20 transition-colors">
+          <div className="hidden md:flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2.5 min-w-[280px] border border-transparent hover:border-primary/20 transition-colors">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="搜索Agent、知识库、工作流..."
               className="bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none flex-1"
             />
-            <kbd className="hidden md:inline-flex h-5 items-center rounded bg-muted px-1.5 text-xs text-muted-foreground">
+            <kbd className="hidden lg:inline-flex h-5 items-center rounded bg-muted px-1.5 text-xs text-muted-foreground">
               ⌘K
             </kbd>
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Quick Stats */}
+          <div className="hidden lg:flex items-center gap-4 mr-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Cpu className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">GPU</span>
+              <span className="text-foreground font-medium">78%</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Zap className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Token</span>
+              <span className="text-foreground font-medium">28K/s</span>
+            </div>
+          </div>
+
           {/* AI Status */}
-          <div className="hidden md:flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-2 border border-primary/20">
+          <div className="hidden md:flex items-center gap-2 rounded-xl bg-muted/50 px-3 py-2 border border-primary/20">
             <div className={cn(
               "h-2 w-2 rounded-full",
               aiStatus === 'online' && "bg-secondary animate-pulse",
