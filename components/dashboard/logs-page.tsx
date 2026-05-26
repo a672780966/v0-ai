@@ -1,8 +1,8 @@
 "use client"
 
-import { 
-  ScrollText, 
-  Filter, 
+import {
+  ScrollText,
+  Filter,
   Download,
   Search,
   AlertCircle,
@@ -12,23 +12,37 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-const logLevels = ['全部', 'INFO', 'WARN', 'ERROR', 'DEBUG']
-const modules = ['全部', 'Agent', 'RAG', 'Runtime', 'Security', 'System']
+const logLevels = ['全部', 'INFO', 'WARN', 'ERROR']
+const modules = ['全部', 'Chat', 'Intent', 'Knowledge', 'Risk', 'System']
 
-const logs = [
-  { time: '2024-01-15 14:32:45.123', level: 'INFO', module: 'Agent', message: '客服Agent处理用户请求成功', requestId: 'req-abc123' },
-  { time: '2024-01-15 14:32:44.892', level: 'INFO', module: 'RAG', message: '知识检索完成，召回5条相关文档', requestId: 'req-abc123' },
-  { time: '2024-01-15 14:32:44.567', level: 'DEBUG', module: 'Runtime', message: 'GPT-4模型调用耗时: 1.2s', requestId: 'req-abc123' },
-  { time: '2024-01-15 14:32:43.234', level: 'WARN', module: 'Security', message: '检测到敏感词，已自动过滤', requestId: 'req-def456' },
-  { time: '2024-01-15 14:32:42.890', level: 'ERROR', module: 'Agent', message: '销售Agent超时，自动重试中', requestId: 'req-ghi789' },
-  { time: '2024-01-15 14:32:41.456', level: 'INFO', module: 'System', message: '系统健康检查通过', requestId: 'sys-001' },
-  { time: '2024-01-15 14:32:40.123', level: 'INFO', module: 'RAG', message: 'Embedding生成完成，维度: 1536', requestId: 'req-jkl012' },
-  { time: '2024-01-15 14:32:39.789', level: 'DEBUG', module: 'Runtime', message: '模型负载均衡切换至Gemma', requestId: 'sys-002' },
-  { time: '2024-01-15 14:32:38.456', level: 'INFO', module: 'Agent', message: '知识检索Agent启动新会话', requestId: 'req-mno345' },
-  { time: '2024-01-15 14:32:37.123', level: 'WARN', module: 'Runtime', message: 'GPU内存使用率达到80%', requestId: 'sys-003' },
-]
+type RawLog = {
+  id?: string
+  timestamp?: string
+  question?: string
+  intent?: string
+  matched_knowledge_ids?: string[]
+  confidence?: number
+  risk_level?: 'low' | 'medium' | 'high'
+  need_human?: boolean
+  lead_score?: number
+  response_time_ms?: number
+  session_id?: string
+  stage?: string
+  status?: string
+  latency_ms?: number
+  detail?: string
+}
+
+type ViewLog = {
+  id: string
+  time: string
+  level: 'INFO' | 'WARN' | 'ERROR'
+  module: string
+  message: string
+  meta: string
+}
 
 const levelConfig: Record<string, { icon: typeof Info; color: string; bg: string }> = {
   INFO: { icon: Info, color: 'text-blue-400', bg: 'bg-blue-500/10' },
@@ -41,26 +55,77 @@ export function LogsPage() {
   const [selectedLevel, setSelectedLevel] = useState('全部')
   const [selectedModule, setSelectedModule] = useState('全部')
   const [searchQuery, setSearchQuery] = useState('')
+  const [logs, setLogs] = useState<RawLog[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const filteredLogs = logs.filter(log => {
+  const loadLogs = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/logs', { cache: 'no-store' })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data?.error || '读取日志失败')
+      }
+
+      setLogs(Array.isArray(data?.logs) ? data.logs : [])
+    } catch {
+      setError('读取日志失败')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadLogs()
+  }, [])
+
+  const viewLogs = useMemo<ViewLog[]>(() => logs.map((log, index) => {
+    const riskLevel = log.risk_level || 'low'
+    const level: ViewLog['level'] = log.status === 'error'
+      ? 'ERROR'
+      : riskLevel === 'high' || log.status === 'warning'
+        ? 'WARN'
+        : 'INFO'
+    const moduleName = log.intent ? 'Chat' : stageModule(log.stage)
+    const matchedIds = log.matched_knowledge_ids?.length ? log.matched_knowledge_ids.join(', ') : '-'
+    const message = log.question
+      ? `用户问题：${log.question}`
+      : log.detail || '系统日志记录'
+    const meta = log.question
+      ? `意图 ${log.intent || '-'} / 知识 ${matchedIds} / 置信度 ${log.confidence ?? 0} / 风险 ${riskLevel} / 转人工 ${log.need_human ? '是' : '否'} / 线索分 ${log.lead_score ?? 0} / ${log.response_time_ms ?? 0}ms`
+      : `${log.session_id || '-'} / ${log.stage || '-'} / ${log.latency_ms ?? 0}ms`
+
+    return {
+      id: log.id || `LOG-${index}`,
+      time: formatTime(log.timestamp),
+      level,
+      module: moduleName,
+      message,
+      meta,
+    }
+  }).reverse(), [logs])
+
+  const filteredLogs = viewLogs.filter(log => {
     if (selectedLevel !== '全部' && log.level !== selectedLevel) return false
     if (selectedModule !== '全部' && log.module !== selectedModule) return false
-    if (searchQuery && !log.message.toLowerCase().includes(searchQuery.toLowerCase())) return false
+    if (searchQuery && !`${log.message} ${log.meta}`.toLowerCase().includes(searchQuery.toLowerCase())) return false
     return true
   })
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">日志监控中心</h1>
           <p className="text-sm text-muted-foreground mt-1">实时系统日志与事件追踪</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted/50 border border-border/50 text-sm text-foreground hover:bg-muted transition-colors">
+          <button onClick={loadLogs} disabled={loading} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted/50 border border-border/50 text-sm text-foreground hover:bg-muted disabled:opacity-50 transition-colors">
             <RefreshCw className="h-4 w-4" />
-            刷新
+            {loading ? '刷新中' : '刷新'}
           </button>
           <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
             <Download className="h-4 w-4" />
@@ -69,10 +134,8 @@ export function LogsPage() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="rounded-2xl bg-card border border-border/50 p-4 backdrop-blur-sm">
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
@@ -84,7 +147,6 @@ export function LogsPage() {
             />
           </div>
 
-          {/* Level Filter */}
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <div className="flex items-center gap-1">
@@ -105,7 +167,6 @@ export function LogsPage() {
             </div>
           </div>
 
-          {/* Module Filter */}
           <select
             value={selectedModule}
             onChange={(e) => setSelectedModule(e.target.value)}
@@ -118,7 +179,6 @@ export function LogsPage() {
         </div>
       </div>
 
-      {/* Logs List */}
       <div className="rounded-2xl bg-card border border-border/50 backdrop-blur-sm overflow-hidden">
         <div className="p-4 border-b border-border/50 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -127,7 +187,7 @@ export function LogsPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">实时日志流</h3>
-              <p className="text-sm text-muted-foreground">显示 {filteredLogs.length} 条记录</p>
+              <p className="text-sm text-muted-foreground">{error || `显示 ${filteredLogs.length} 条记录`}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -137,12 +197,12 @@ export function LogsPage() {
         </div>
 
         <div className="divide-y divide-border/30 max-h-[600px] overflow-y-auto">
-          {filteredLogs.map((log, index) => {
+          {filteredLogs.map((log) => {
             const config = levelConfig[log.level]
             const Icon = config.icon
             return (
-              <div 
-                key={index}
+              <div
+                key={log.id}
                 className="flex items-start gap-4 p-4 hover:bg-muted/20 transition-colors"
               >
                 <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg shrink-0", config.bg)}>
@@ -159,13 +219,33 @@ export function LogsPage() {
                     </span>
                   </div>
                   <p className="text-sm text-foreground">{log.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1 font-mono">{log.requestId}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{log.meta}</p>
                 </div>
               </div>
             )
           })}
+          {!filteredLogs.length && (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              暂无日志记录
+            </div>
+          )}
         </div>
       </div>
     </div>
   )
+}
+
+function formatTime(value?: string): string {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString('zh-CN', { hour12: false })
+}
+
+function stageModule(stage?: string): string {
+  if (!stage) return 'System'
+  if (stage.includes('intent')) return 'Intent'
+  if (stage.includes('knowledge')) return 'Knowledge'
+  if (stage.includes('risk')) return 'Risk'
+  return 'System'
 }

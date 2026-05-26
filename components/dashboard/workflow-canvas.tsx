@@ -26,64 +26,78 @@ const nodeColors = {
 
 const initialNodes: Node[] = [
   {
-    id: 'input',
-    data: { label: '企业数据输入', color: 'blue', category: 'source' },
+    id: 'question',
+    data: { label: '用户提问', color: 'blue', category: 'input' },
     position: { x: 0, y: 150 },
     type: 'custom',
   },
   {
     id: 'intent',
-    data: { label: '意图识别', color: 'cyan', category: 'routing' },
-    position: { x: 200, y: 150 },
+    data: { label: '意图识别', color: 'cyan', category: 'nlp' },
+    position: { x: 180, y: 150 },
     type: 'custom',
   },
   {
-    id: 'governance',
-    data: { label: '语义治理', color: 'purple', category: 'processing' },
-    position: { x: 400, y: 150 },
+    id: 'kb',
+    data: { label: '知识库检索', color: 'green', category: 'retrieval' },
+    position: { x: 360, y: 150 },
     type: 'custom',
   },
   {
-    id: 'rag',
-    data: { label: 'RAG知识中台', color: 'green', large: true, category: 'knowledge' },
-    position: { x: 600, y: 130 },
+    id: 'answer',
+    data: { label: 'AI回答', color: 'violet', category: 'generation' },
+    position: { x: 540, y: 150 },
     type: 'custom',
   },
   {
-    id: 'agent',
-    data: { label: '多Agent协作', color: 'violet', category: 'agent' },
-    position: { x: 840, y: 150 },
+    id: 'risk',
+    data: { label: '风险判断', color: 'purple', category: 'risk' },
+    position: { x: 720, y: 150 },
     type: 'custom',
   },
   {
     id: 'human',
-    data: { label: '人工审核', color: 'orange', category: 'human' },
-    position: { x: 1040, y: 150 },
+    data: { label: '人工介入建议', color: 'orange', category: 'handoff' },
+    position: { x: 900, y: 150 },
+    type: 'custom',
+  },
+  {
+    id: 'crm',
+    data: { label: 'CRM线索标签', color: 'teal', category: 'crm' },
+    position: { x: 1080, y: 150 },
     type: 'custom',
   },
   {
     id: 'feedback',
-    data: { label: '数据反馈闭环', color: 'teal', category: 'loop' },
-    position: { x: 1240, y: 150 },
+    data: { label: '知识回流记录', color: 'green', category: 'learning' },
+    position: { x: 1260, y: 150 },
+    type: 'custom',
+  },
+  {
+    id: 'board',
+    data: { label: '管理层看板更新', color: 'blue', category: 'dashboard' },
+    position: { x: 1440, y: 150 },
     type: 'custom',
   },
 ]
 
 const initialEdges: Edge[] = [
-  { id: 'e1', source: 'input', target: 'intent', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#3B82F6', strokeWidth: 2 } },
-  { id: 'e2', source: 'intent', target: 'governance', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#06B6D4', strokeWidth: 2 } },
-  { id: 'e3', source: 'governance', target: 'rag', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#8B5CF6', strokeWidth: 2 } },
-  { id: 'e4', source: 'rag', target: 'agent', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#10B981', strokeWidth: 2 } },
-  { id: 'e5', source: 'agent', target: 'human', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#7C3AED', strokeWidth: 2 } },
-  { id: 'e6', source: 'human', target: 'feedback', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#F59E0B', strokeWidth: 2 } },
-  { 
-    id: 'e7', 
-    source: 'feedback', 
-    target: 'rag', 
+  { id: 'e1', source: 'question', target: 'intent', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#3B82F6', strokeWidth: 2 } },
+  { id: 'e2', source: 'intent', target: 'kb', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#06B6D4', strokeWidth: 2 } },
+  { id: 'e3', source: 'kb', target: 'answer', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#10B981', strokeWidth: 2 } },
+  { id: 'e4', source: 'answer', target: 'risk', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#7C3AED', strokeWidth: 2 } },
+  { id: 'e5', source: 'risk', target: 'human', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#8B5CF6', strokeWidth: 2 } },
+  { id: 'e6', source: 'human', target: 'crm', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#F59E0B', strokeWidth: 2 } },
+  { id: 'e7', source: 'crm', target: 'feedback', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#14B8A6', strokeWidth: 2 } },
+  { id: 'e8', source: 'feedback', target: 'board', sourceHandle: 'source', targetHandle: 'target', animated: true, style: { stroke: '#3B82F6', strokeWidth: 2 } },
+  {
+    id: 'e9',
+    source: 'feedback',
+    target: 'kb',
     sourceHandle: 'source',
     targetHandle: 'target',
-    animated: true, 
-    style: { stroke: '#14B8A6', strokeDasharray: '5 5', strokeWidth: 2 },
+    animated: true,
+    style: { stroke: '#10B981', strokeDasharray: '5 5', strokeWidth: 2 },
     type: 'smoothstep',
   },
 ]
@@ -139,7 +153,7 @@ export function WorkflowCanvas() {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">企业AI工作流</h3>
-              <p className="text-sm text-muted-foreground">交互式流程编排</p>
+              <p className="text-sm text-muted-foreground">企业服务AI资质顾问MVP流程</p>
             </div>
           </div>
         </div>
@@ -159,7 +173,7 @@ export function WorkflowCanvas() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-foreground">企业AI工作流</h3>
-            <p className="text-sm text-muted-foreground">交互式流程编排</p>
+            <p className="text-sm text-muted-foreground">企业服务AI资质顾问MVP流程</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -196,13 +210,13 @@ export function WorkflowCanvas() {
       {/* Legend */}
       <div className="flex flex-wrap items-center justify-center gap-4 mt-4 pt-4 border-t border-border/30">
         {[
-          { color: 'blue', label: '数据源' },
-          { color: 'cyan', label: '路由' },
-          { color: 'purple', label: '处理' },
-          { color: 'green', label: '知识' },
-          { color: 'violet', label: 'Agent' },
-          { color: 'orange', label: '人工' },
-          { color: 'teal', label: '闭环' },
+          { color: 'blue', label: '输入/看板' },
+          { color: 'cyan', label: '意图识别' },
+          { color: 'green', label: '检索/学习' },
+          { color: 'violet', label: 'AI回答' },
+          { color: 'purple', label: '风险判断' },
+          { color: 'orange', label: '人工介入' },
+          { color: 'teal', label: 'CRM标签' },
         ].map((item) => (
           <div key={item.color} className="flex items-center gap-2">
             <div 

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "LOG001",
+    "timestamp": "2026-05-26T09:00:02Z",
+    "session_id": "S-1001",
+    "stage": "intent_recognition",
+    "status": "success",
+    "latency_ms": 120,
+    "detail": "识别为建筑资质-首次申请"
+  },
+  {
+    "id": "LOG002",
+    "timestamp": "2026-05-26T09:00:03Z",
+    "session_id": "S-1001",
+    "stage": "knowledge_retrieval",
+    "status": "success",
+    "latency_ms": 210,
+    "detail": "命中知识条目 Q001"
+  },
+  {
+    "id": "LOG003",
+    "timestamp": "2026-05-26T09:20:10Z",
+    "session_id": "S-1002",
+    "stage": "risk_judgement",
+    "status": "warning",
+    "latency_ms": 95,
+    "detail": "触发跨省备案高风险规则"
+  }
+]

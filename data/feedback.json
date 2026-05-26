@@ -1,0 +1,26 @@
+[
+  {
+    "id": "FB001",
+    "created_at": "2026-05-26T09:00:00Z",
+    "session_id": "S-1001",
+    "question": "施工总承包三级首次申请要哪些材料？",
+    "ai_answer_quality": 4,
+    "risk_flag": false,
+    "needs_human": false,
+    "feedback": "回答较完整，建议补充地区差异提醒。",
+    "knowledge_writeback": true,
+    "tags": ["建筑资质", "首次申请"]
+  },
+  {
+    "id": "FB002",
+    "created_at": "2026-05-26T09:20:00Z",
+    "session_id": "S-1002",
+    "question": "跨省承揽工程如何备案？",
+    "ai_answer_quality": 3,
+    "risk_flag": true,
+    "needs_human": true,
+    "feedback": "不同省份政策差异大，已建议人工介入。",
+    "knowledge_writeback": false,
+    "tags": ["跨省备案", "高风险"]
+  }
+]
