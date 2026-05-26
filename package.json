@@ -63,6 +63,7 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@tailwindcss/oxide-linux-x64-gnu": "4.2.0",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
     "@types/react": "^19",
