@@ -18,13 +18,13 @@ import { GovernanceSecurityPage } from '@/components/dashboard/governance-securi
 import { CopilotPage } from '@/components/dashboard/copilot-page'
 import { LogsPage } from '@/components/dashboard/logs-page'
 import { SettingsPage } from '@/components/dashboard/settings-page'
+import { AIRoadmapPage } from '@/components/dashboard/ai-roadmap-page'
 import { useDashboardStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 function ExecutiveOverview() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">经营总览</h1>
@@ -51,7 +51,6 @@ function ExecutiveOverview() {
 function WorkflowStudioPage() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">AI工作流</h1>
@@ -71,7 +70,6 @@ function WorkflowStudioPage() {
 function CustomerServicePage() {
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">AI客服中心</h1>
         <p className="text-sm text-muted-foreground mt-1">智能客服对话管理与监控</p>
@@ -93,6 +91,8 @@ export default function DashboardPage() {
     switch (currentPage) {
       case 'executive':
         return <ExecutiveOverview />
+      case 'ai-roadmap':
+        return <AIRoadmapPage />
       case 'workflow':
         return <WorkflowStudioPage />
       case 'knowledge':
