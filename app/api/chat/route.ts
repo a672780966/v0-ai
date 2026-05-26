@@ -34,6 +34,21 @@ type LeadResp = {
   sales_script: string
 }
 
+type ChatLogRecord = {
+  id: string
+  timestamp: string
+  question: string
+  intent: string
+  matched_knowledge_ids: string[]
+  confidence: number
+  risk_level: 'low' | 'medium' | 'high'
+  need_human: boolean
+  lead_score: number
+  response_time_ms: number
+}
+
+const globalStore = globalThis as typeof globalThis & { __mvpLogs?: ChatLogRecord[] }
+
 async function postJson<T>(url: URL, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(url, {
     method: 'POST',
@@ -56,24 +71,34 @@ async function writeChatLog(params: {
   responseTimeMs: number
 }) {
   const filePath = path.join(process.cwd(), 'data/logs.json')
-  const raw = await fs.readFile(filePath, 'utf-8')
-  const logs = JSON.parse(raw) as unknown[]
-  const matchedKnowledgeIds = params.knowledge.results.map((item) => item.id)
+  let logs: ChatLogRecord[] = []
 
-  logs.push({
+  try {
+    const raw = await fs.readFile(filePath, 'utf-8')
+    logs = JSON.parse(raw) as ChatLogRecord[]
+  } catch {
+    logs = globalStore.__mvpLogs ?? []
+  }
+
+  const record: ChatLogRecord = {
     id: `LOG${String(logs.length + 1).padStart(3, '0')}`,
     timestamp: new Date().toISOString(),
     question: params.question,
     intent: params.intent.intent,
-    matched_knowledge_ids: matchedKnowledgeIds,
+    matched_knowledge_ids: params.knowledge.results.map((item) => item.id),
     confidence: params.knowledge.confidence,
     risk_level: params.intent.risk_level,
     need_human: params.intent.need_human,
     lead_score: params.lead.lead_score,
     response_time_ms: params.responseTimeMs,
-  })
+  }
+  const nextLogs = [...logs, record]
 
-  await fs.writeFile(filePath, `${JSON.stringify(logs, null, 2)}\n`, 'utf-8')
+  try {
+    await fs.writeFile(filePath, `${JSON.stringify(nextLogs, null, 2)}\n`, 'utf-8')
+  } catch {
+    globalStore.__mvpLogs = nextLogs
+  }
 }
 
 export async function POST(req: Request) {
@@ -104,13 +129,7 @@ export async function POST(req: Request) {
     const answer = top ? `根据知识库命中：${top.content}` : '暂未命中明确知识，建议转人工进一步评估。'
     const responseTimeMs = Date.now() - startedAt
 
-    await writeChatLog({
-      question: message,
-      intent,
-      knowledge,
-      lead,
-      responseTimeMs,
-    })
+    await writeChatLog({ question: message, intent, knowledge, lead, responseTimeMs })
 
     return NextResponse.json({
       answer,
