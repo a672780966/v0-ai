@@ -21,6 +21,17 @@ type FeedbackRecord = {
 }
 
 const validFeedbackTypes: FeedbackType[] = ['正确', '错误', '需要补充', '转人工']
+const globalStore = globalThis as typeof globalThis & { __mvpFeedback?: FeedbackRecord[] }
+const feedbackPath = () => path.join(process.cwd(), 'data/feedback.json')
+
+async function readFeedback(): Promise<FeedbackRecord[]> {
+  try {
+    const raw = await fs.readFile(feedbackPath(), 'utf-8')
+    return [...(JSON.parse(raw) as FeedbackRecord[]), ...(globalStore.__mvpFeedback ?? [])]
+  } catch {
+    return globalStore.__mvpFeedback ?? []
+  }
+}
 
 function buildRecord(body: Record<string, unknown>, index: number): FeedbackRecord {
   const feedbackType = typeof body.feedback_type === 'string' && validFeedbackTypes.includes(body.feedback_type as FeedbackType)
@@ -68,13 +79,15 @@ function buildRecord(body: Record<string, unknown>, index: number): FeedbackReco
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const filePath = path.join(process.cwd(), 'data/feedback.json')
-    const raw = await fs.readFile(filePath, 'utf-8')
-    const records = JSON.parse(raw) as FeedbackRecord[]
+    const records = await readFeedback()
     const record = buildRecord(body, records.length)
+    const nextRecords = [...records, record]
 
-    records.push(record)
-    await fs.writeFile(filePath, `${JSON.stringify(records, null, 2)}\n`, 'utf-8')
+    try {
+      await fs.writeFile(feedbackPath(), `${JSON.stringify(nextRecords, null, 2)}\n`, 'utf-8')
+    } catch {
+      globalStore.__mvpFeedback = nextRecords
+    }
 
     return NextResponse.json({
       success: true,
@@ -90,13 +103,5 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  try {
-    const filePath = path.join(process.cwd(), 'data/feedback.json')
-    const raw = await fs.readFile(filePath, 'utf-8')
-    const feedback = JSON.parse(raw) as FeedbackRecord[]
-
-    return NextResponse.json({ feedback })
-  } catch {
-    return NextResponse.json({ error: '读取反馈失败' }, { status: 500 })
-  }
+  return NextResponse.json({ feedback: await readFeedback() })
 }
