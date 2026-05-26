@@ -1,0 +1,30 @@
+{
+  "summary": {
+    "title": "AI 价值测算",
+    "subtitle": "用可解释的经营口径评估 AI 资质顾问 MVP 的降本、提效与转化价值。",
+    "period": "月度模拟",
+    "scenario": "企业服务咨询与资质顾问场景"
+  },
+  "assumptions": {
+    "monthly_consultations": 1200,
+    "manual_minutes_per_case": 8,
+    "ai_auto_handle_rate": 0.42,
+    "manual_hour_cost": 45,
+    "high_intent_rate": 0.18,
+    "lead_conversion_rate": 0.12,
+    "average_order_value": 6800,
+    "knowledge_reuse_rate": 0.35
+  },
+  "benchmarks": [
+    { "label": "人工平均响应", "before": "8 分钟/次", "after": "2 分钟/次", "impact": "重复问题先由 AI 初筛，顾问只处理高风险和高意向咨询。" },
+    { "label": "知识口径一致性", "before": "依赖个人经验", "after": "知识库来源可追溯", "impact": "减少政策类、资质类问题的回答差异。" },
+    { "label": "销售线索识别", "before": "人工主观判断", "after": "标签 + 评分 + 跟进建议", "impact": "让销售优先跟进更有转化概率的客户。" },
+    { "label": "知识沉淀", "before": "问题散落在聊天记录", "after": "错误反馈与补充建议回流", "impact": "让客服和顾问经验持续变成企业知识资产。" }
+  ],
+  "investment_advice": [
+    "若 AI 自动处理率连续两周超过 35%，建议扩大到真实客服咨询试点。",
+    "若高风险转人工准确率低于 90%，应优先补充风控规则和人工审核口径。",
+    "若知识命中率低于 60%，说明知识库结构和样本覆盖不足，不宜急着接 CRM。",
+    "若线索评分与销售反馈一致性较高，可进入 CRM 辅助跟进二期。"
+  ]
+}
