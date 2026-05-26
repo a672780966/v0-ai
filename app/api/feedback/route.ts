@@ -23,6 +23,7 @@ type FeedbackRecord = {
 const validFeedbackTypes: FeedbackType[] = ['正确', '错误', '需要补充', '转人工']
 const globalStore = globalThis as typeof globalThis & { __mvpFeedback?: FeedbackRecord[] }
 const feedbackPath = () => path.join(process.cwd(), 'data/feedback.json')
+const isVercel = process.env.VERCEL === '1'
 
 async function readFeedback(): Promise<FeedbackRecord[]> {
   try {
@@ -52,12 +53,7 @@ function buildRecord(body: Record<string, unknown>, index: number): FeedbackReco
 
   const needsHuman = feedbackType === '转人工'
   const knowledgeWriteback = feedbackType === '错误' || feedbackType === '需要补充'
-  const qualityMap: Record<FeedbackType, number> = {
-    正确: 5,
-    错误: 1,
-    需要补充: 3,
-    转人工: 2,
-  }
+  const qualityMap: Record<FeedbackType, number> = { 正确: 5, 错误: 1, 需要补充: 3, 转人工: 2 }
 
   return {
     id: `FB${String(index + 1).padStart(3, '0')}`,
@@ -83,17 +79,13 @@ export async function POST(req: Request) {
     const record = buildRecord(body, records.length)
     const nextRecords = [...records, record]
 
-    try {
-      await fs.writeFile(feedbackPath(), `${JSON.stringify(nextRecords, null, 2)}\n`, 'utf-8')
-    } catch {
+    if (isVercel) {
       globalStore.__mvpFeedback = nextRecords
+    } else {
+      await fs.writeFile(feedbackPath(), `${JSON.stringify(nextRecords, null, 2)}\n`, 'utf-8')
     }
 
-    return NextResponse.json({
-      success: true,
-      message: '反馈保存成功',
-      feedback: record,
-    })
+    return NextResponse.json({ success: true, message: '反馈保存成功', feedback: record })
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : '反馈保存失败' },
