@@ -15,20 +15,22 @@ type ChatLogRecord = {
   response_time_ms: number
 }
 
+const globalStore = globalThis as typeof globalThis & { __mvpLogs?: ChatLogRecord[] }
 const logsPath = () => path.join(process.cwd(), 'data/logs.json')
 
-async function readLogs(): Promise<unknown[]> {
-  const raw = await fs.readFile(logsPath(), 'utf-8')
-  return JSON.parse(raw) as unknown[]
+async function readLogs(): Promise<ChatLogRecord[]> {
+  try {
+    const raw = await fs.readFile(logsPath(), 'utf-8')
+    const fileLogs = JSON.parse(raw) as ChatLogRecord[]
+    return [...fileLogs, ...(globalStore.__mvpLogs ?? [])]
+  } catch {
+    return globalStore.__mvpLogs ?? []
+  }
 }
 
 export async function GET() {
-  try {
-    const logs = await readLogs()
-    return NextResponse.json({ logs })
-  } catch {
-    return NextResponse.json({ error: '读取日志失败' }, { status: 500 })
-  }
+  const logs = await readLogs()
+  return NextResponse.json({ logs })
 }
 
 export async function POST(req: Request) {
@@ -53,8 +55,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'question 不能为空' }, { status: 400 })
     }
 
-    logs.push(record)
-    await fs.writeFile(logsPath(), `${JSON.stringify(logs, null, 2)}\n`, 'utf-8')
+    const nextLogs = [...logs, record]
+
+    try {
+      await fs.writeFile(logsPath(), `${JSON.stringify(nextLogs, null, 2)}\n`, 'utf-8')
+    } catch {
+      globalStore.__mvpLogs = nextLogs
+    }
 
     return NextResponse.json({ success: true, message: '日志保存成功', log: record })
   } catch {
