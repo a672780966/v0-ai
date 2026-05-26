@@ -1,0 +1,49 @@
+name: Sync Qualification Advisor MVP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-mvp:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Checkout v0 bound repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Download MVP source repository
+        run: |
+          curl -L -o /tmp/mvp.zip https://github.com/a672780966/-ai-demo/archive/refs/heads/main.zip
+          unzip -q /tmp/mvp.zip -d /tmp/mvp
+          mv /tmp/mvp/* /tmp/mvp-source
+
+      - name: Sync MVP files
+        run: |
+          mkdir -p app/api data/knowledge components/dashboard
+          cp -R /tmp/mvp-source/app/api ./app/
+          cp -R /tmp/mvp-source/data ./
+          cp /tmp/mvp-source/.env.local.example ./.env.local.example
+          cp /tmp/mvp-source/components/dashboard/customer-service-panel.tsx ./components/dashboard/customer-service-panel.tsx
+          cp /tmp/mvp-source/components/dashboard/executive-metrics.tsx ./components/dashboard/executive-metrics.tsx
+          cp /tmp/mvp-source/components/dashboard/logs-page.tsx ./components/dashboard/logs-page.tsx
+          cp /tmp/mvp-source/components/dashboard/workflow-canvas.tsx ./components/dashboard/workflow-canvas.tsx
+
+      - name: Commit synced MVP files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .env.local.example app/api data components/dashboard/customer-service-panel.tsx components/dashboard/executive-metrics.tsx components/dashboard/logs-page.tsx components/dashboard/workflow-canvas.tsx
+          if git diff --cached --quiet; then
+            echo "No MVP changes to sync"
+          else
+            git commit -m "feat: sync qualification advisor MVP"
+            git push
+          fi
