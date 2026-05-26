@@ -34,21 +34,6 @@ type LeadResp = {
   sales_script: string
 }
 
-type ChatLogRecord = {
-  id: string
-  timestamp: string
-  question: string
-  intent: string
-  matched_knowledge_ids: string[]
-  confidence: number
-  risk_level: 'low' | 'medium' | 'high'
-  need_human: boolean
-  lead_score: number
-  response_time_ms: number
-}
-
-const globalStore = globalThis as typeof globalThis & { __mvpLogs?: ChatLogRecord[] }
-
 async function postJson<T>(url: URL, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(url, {
     method: 'POST',
@@ -63,11 +48,6 @@ async function postJson<T>(url: URL, body: Record<string, unknown>): Promise<T> 
   return res.json() as Promise<T>
 }
 
-async function readFileLogs(filePath: string): Promise<ChatLogRecord[]> {
-  const raw = await fs.readFile(filePath, 'utf-8')
-  return JSON.parse(raw) as ChatLogRecord[]
-}
-
 async function writeChatLog(params: {
   question: string
   intent: IntentResp
@@ -76,16 +56,11 @@ async function writeChatLog(params: {
   responseTimeMs: number
 }) {
   const filePath = path.join(process.cwd(), 'data/logs.json')
-  let logs: ChatLogRecord[] = []
-
-  try {
-    logs = await readFileLogs(filePath)
-  } catch {
-    logs = globalStore.__mvpLogs ?? []
-  }
-
+  const raw = await fs.readFile(filePath, 'utf-8')
+  const logs = JSON.parse(raw) as unknown[]
   const matchedKnowledgeIds = params.knowledge.results.map((item) => item.id)
-  const record: ChatLogRecord = {
+
+  logs.push({
     id: `LOG${String(logs.length + 1).padStart(3, '0')}`,
     timestamp: new Date().toISOString(),
     question: params.question,
@@ -96,15 +71,9 @@ async function writeChatLog(params: {
     need_human: params.intent.need_human,
     lead_score: params.lead.lead_score,
     response_time_ms: params.responseTimeMs,
-  }
+  })
 
-  const nextLogs = [...logs, record]
-
-  try {
-    await fs.writeFile(filePath, `${JSON.stringify(nextLogs, null, 2)}\n`, 'utf-8')
-  } catch {
-    globalStore.__mvpLogs = nextLogs
-  }
+  await fs.writeFile(filePath, `${JSON.stringify(logs, null, 2)}\n`, 'utf-8')
 }
 
 export async function POST(req: Request) {
