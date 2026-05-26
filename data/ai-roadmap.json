@@ -1,0 +1,127 @@
+{
+  "summary": {
+    "title": "开林集团 AI 应用规划样板",
+    "positioning": "以企业服务业务为核心，优先验证客服咨询、资质顾问、企业知识库与 CRM 辅助场景，形成可追踪、可转化、可回流的 AI 应用闭环。",
+    "principles": [
+      "先做高频重复场景，避免一开始追求大而全",
+      "先用 MVP 验证业务价值，再推进系统化集成",
+      "高风险政策、资质、财税问题必须保留人工确认",
+      "每个 AI 应用都要沉淀数据、指标和知识回流"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "S001",
+      "name": "AI 客服咨询",
+      "category": "客户服务",
+      "business_value": "高",
+      "implementation_difficulty": "中",
+      "data_readiness": "高",
+      "risk_level": "中",
+      "priority": "P0",
+      "mvp": "接入常见咨询知识库，完成问题识别、知识命中、自动回答、转人工和反馈回流。",
+      "expected_outcome": "降低重复咨询人工占用，提高首次响应速度。"
+    },
+    {
+      "id": "S002",
+      "name": "企业服务 AI 资质顾问",
+      "category": "资质咨询",
+      "business_value": "高",
+      "implementation_difficulty": "中",
+      "data_readiness": "中",
+      "risk_level": "高",
+      "priority": "P0",
+      "mvp": "围绕建筑资质、工商财税、企业服务知识，验证意图识别、风险等级、线索评分和顾问转接。",
+      "expected_outcome": "提升资质咨询标准化程度，帮助销售识别高意向线索。"
+    },
+    {
+      "id": "S003",
+      "name": "企业知识库",
+      "category": "知识治理",
+      "business_value": "高",
+      "implementation_difficulty": "中",
+      "data_readiness": "中",
+      "risk_level": "中",
+      "priority": "P0",
+      "mvp": "建立政策、服务流程、FAQ、案例知识的结构化管理，支持检索、来源追溯和更新记录。",
+      "expected_outcome": "减少知识分散和口径不一致，形成长期知识资产。"
+    },
+    {
+      "id": "S004",
+      "name": "CRM 销售助手",
+      "category": "销售转化",
+      "business_value": "高",
+      "implementation_difficulty": "中",
+      "data_readiness": "中",
+      "risk_level": "低",
+      "priority": "P1",
+      "mvp": "根据咨询内容生成客户标签、线索评分、跟进建议和销售话术。",
+      "expected_outcome": "提升销售跟进效率，减少线索遗漏。"
+    },
+    {
+      "id": "S005",
+      "name": "政策更新监控助手",
+      "category": "政策运营",
+      "business_value": "中",
+      "implementation_difficulty": "中",
+      "data_readiness": "低",
+      "risk_level": "高",
+      "priority": "P1",
+      "mvp": "模拟政策变更采集、摘要生成、影响业务标签和人工审核流程。",
+      "expected_outcome": "帮助顾问团队更快发现政策变化和业务影响。"
+    },
+    {
+      "id": "S006",
+      "name": "财税材料审核助手",
+      "category": "交付审核",
+      "business_value": "中",
+      "implementation_difficulty": "高",
+      "data_readiness": "低",
+      "risk_level": "高",
+      "priority": "P2",
+      "mvp": "先做材料清单校验和缺失项提示，不直接给出高风险财税结论。",
+      "expected_outcome": "减少资料初审反复沟通，提高交付前置效率。"
+    },
+    {
+      "id": "S007",
+      "name": "内部员工助手",
+      "category": "内部效率",
+      "business_value": "中",
+      "implementation_difficulty": "低",
+      "data_readiness": "中",
+      "risk_level": "低",
+      "priority": "P2",
+      "mvp": "围绕制度查询、流程查询、培训资料问答做内部试点。",
+      "expected_outcome": "降低内部咨询成本，提升员工获取信息效率。"
+    }
+  ],
+  "phases": [
+    {
+      "name": "0-30 天",
+      "focus": "业务盘点与 MVP 场景确认",
+      "deliverables": [
+        "完成客服、销售、顾问三类高频问题清单",
+        "确定 P0 场景和数据边界",
+        "输出 AI 应用优先级矩阵"
+      ]
+    },
+    {
+      "name": "31-60 天",
+      "focus": "AI 资质顾问与知识库试点",
+      "deliverables": [
+        "完成本地知识库与咨询工作流 MVP",
+        "接入反馈回流和日志指标",
+        "形成高风险转人工规则"
+      ]
+    },
+    {
+      "name": "61-90 天",
+      "focus": "业务试点与 ROI 复盘",
+      "deliverables": [
+        "在真实咨询场景中试点",
+        "复盘自动处理率、知识命中率和线索转化",
+        "输出下一阶段系统集成建议"
+      ]
+    }
+  ]
+}
